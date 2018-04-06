@@ -68,4 +68,4 @@ function gameLoop() {
     rotateSprite(balls[2], balls[0], 20, balls[2].angle);
     render(canvas, stage);
 }
-setup();
+//setup();

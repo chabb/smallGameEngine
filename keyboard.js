@@ -7,7 +7,7 @@ export function keyboard(keyCode) {
     key.release = undefined;
 
     key.downHandler = function(event) {
-        if (event.keyCode === key.code) {
+        if (event.keyCode === key.keyCode) {
             if (key.isUp && key.press) {
                 key.press();
             }
@@ -16,7 +16,16 @@ export function keyboard(keyCode) {
         }
         event.preventDefault();
     };
+    key.upHandler = function(event) {
+        if (event.keyCode === key.keyCode) {
+            if (key.isDown && key.release) {
+                key.release();
+            }
+            key.isDown = false;
+            key.isUp = true;
 
+        }
+    };
     window.addEventListener('keydown', key.downHandler.bind(key), false);
     window.addEventListener('keyup', key.upHandler.bind(key), false);
     return key;

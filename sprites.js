@@ -202,7 +202,7 @@ export function render(canvas, stage) {
 }
 
 export class Rectangle extends DisplayObject {
-    constructor(width = 32, height = 32, x = 0, y = 0, lineWidth = 0, strokeStyle = 'none', fillStyle = 'gray') {
+    constructor(width = 32, height = 32, strokeStyle = 'none', fillStyle = 'gray', lineWidth = 0, x = 0, y = 0) {
         super();
         Object.assign(this, {width, height, fillStyle, strokeStyle, lineWidth, x, y});
         this.mask = false;
@@ -222,8 +222,6 @@ export class Rectangle extends DisplayObject {
 }
 export class Line extends DisplayObject {
     constructor(
-        diameter = 32,
-        fillStyle = 'gray',
         strokeStyle = 'none',
         lineWidth = 0,
         ax = 0,
@@ -301,7 +299,7 @@ export class Group extends DisplayObject {
             sprite.parent.removeChild(sprite);
         }
         sprite.parent = this;
-        this.children.push(this);
+        this.children.push(sprite);
         this.calculateSize();
     }
     removeChild(sprite) {

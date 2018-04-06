@@ -1,66 +1,24 @@
-import {Circle, Rectangle, Group, DisplayObject, render, Line, makeCanvas} from "./index.js";
+import {findAngle, rotateSprite} from "./utility.js";
+import {Circle, DisplayObject, Rectangle} from "./sprites";
 
-function rotateSprite(rotatingSprite, centerSprite, distance, angle) {
-    rotatingSprite.x = centerSprite.centerX - rotatingSprite.parent.x
-        + ( distance * Math.cos(angle))
-        - rotatingSprite.halfWidth;
-    rotatingSprite.y = centerSprite.centerY - rotatingSprite.parent.y
-        + (distance * Math.sin(angle))
-        - rotatingSprite.halfWidth;
-}
 
-let box, ball, canvas, stage, balls = [];
 
 function setup() {
-    canvas = makeCanvas(256, 256);
+    let stage = new DisplayObject();
+    let box = new Rectangle(32, 32 ,'gray');
+    let turret = new Line('red', 4, 0, 0, 32, 0);
+    turret.x = 16;
+    turret.y = 16;
+    tank = new Group(box, turret);
+    stage.putCenter(tank);
 
-    stage = new DisplayObject();
+    tank.vx = 0;
+    tank.vy = 0;
+    tank.ax = 0;
+    tank.ay = 0;
+    tank.frictionX = 0.96;
+    tank.frictionY = 0.96;
 
-    stage.width = canvas.width;
-    stage.height = canvas.height;
-
-    box = new Rectangle(32, 32 ,"gray");
-    stage.addChild(box);
-    stage.putCenter(box, 0, 0);
-
-    ball = new Circle(32, "gray");
-
-    balls[0] = new Circle(32, "red");
-    balls[1] = new Circle(30, "cyan");
-    balls[2] = new Circle(28, "green");
-    balls[3] = new Circle(26, "gray");
-    stage.addChild(ball);
-
-    ball.addChild(balls[0]);
-    ball.addChild(balls[1]);
-    balls[0].addChild(balls[2]);
-
-    balls[0].putLeft(ball, -120);
-    balls[1].putLeft(ball, 100, 140);
-    balls[2].putLeft(ball, 70, 140);
-    balls[0].angle = 0;
-    balls[1].angle = Math.PI / 2;
-    balls[2].angle = Math.PI / 4;
-
-
-
-    box.putLeft(ball, -32);
-    ball.angle = 0;
-    gameLoop();
+    tank.rotationSpeed = 0;
+    tank.moveForward = false;
 }
-
-
-function gameLoop() {
-    requestAnimationFrame(gameLoop);
-    ball.angle += 0.05;
-    balls[0].angle += 0.05;
-    balls[1].angle += 0.06;
-    balls[2].angle += 0.07;
-
-    rotateSprite(ball, box, 48, ball.angle);
-    rotateSprite(balls[0], ball, 48, balls[0].angle);
-    rotateSprite(balls[1], ball, 48, balls[1].angle);
-    rotateSprite(balls[2], balls[0], 20, balls[2].angle);
-    render(canvas, stage);
-}
-setup();

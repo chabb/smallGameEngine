@@ -153,6 +153,22 @@ export class DisplayObject {
         return this._currentFrame;
     }
 
+    get localBounds() {
+        return {
+            x: 0,
+            y: 0,
+            width: this.width,
+            height: this.height
+        };
+    }
+    get globalBounds() {
+        return {
+            x: this.gx,
+            y: this.gy,
+            width: this.gx + this.width,
+            height: this.gy + this.height
+        };
+    }
 
     // a few things are missing
 }

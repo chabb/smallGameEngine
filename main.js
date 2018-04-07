@@ -4,7 +4,9 @@ import {shoot} from './utility.js';
 
 function setup() {
     let canvas = makeCanvas(600, 600);
-    let stage = new DisplayObject();
+    let stage = new DisplayObject()
+    stage.width = 600;
+    stage.height = 600;
     let box = new Rectangle(32, 32 ,'gray');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
@@ -70,8 +72,9 @@ function setup() {
             bullet.x += bullet.vx;
             bullet.y += bullet.vy;
 
-            let collision = false;
+            let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
+                //remove(bullet);
                 return false;
             }
 
@@ -82,5 +85,22 @@ function setup() {
         render(canvas, stage)
     }
 }
-
+function outsideBounds(sprite, bounds, extra = undefined) {
+    let x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;
+    console.log(x, y, width, height);
+    let collision = false;
+    if ( sprite.x < x - sprite.width ) {
+        collision = 'left';
+    } else if (sprite.y < y - sprite.height) {
+        collision = 'top';
+    } else if (sprite.x > width) {
+        collision = 'right';
+    } else if (sprite.y > height) {
+        collision = 'bottom';
+    }
+    if (extra) {
+        extra(collision);
+    }
+    return collision;
+}
 setup();

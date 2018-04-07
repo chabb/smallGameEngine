@@ -1,11 +1,13 @@
 import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from './sprites.js';
 import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
+import {hit} from './collision.js';
 
 let width = 900;
 let height = 900;
 let stage, canvas;
 
+let playerBox;
 
 function makeGunTurret() {
     let x = Math.floor(Math.random() * width);
@@ -30,7 +32,6 @@ function makeGunTurret() {
 }
 
 
-
 function setup() {
     let frames = 0;
     canvas = makeCanvas(width, height);
@@ -41,7 +42,9 @@ function setup() {
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
     let bullets = [];
+    let foeBullets = [];
 
+    playerBox = box;
     let gunTurrets = [];
     for (let i = 0; i < 8; i++) {
         gunTurrets.push(makeGunTurret());
@@ -108,7 +111,7 @@ function setup() {
 
         gunTurrets.forEach(turret =>  {
             if (frames % turret.firingRate === 0) {
-                let bullet = shoot(turret, turret.rotation, 32, 10, bullets, () => new Circle(8, 'black'));
+                let bullet = shoot(turret, turret.rotation, 32, 4, foeBullets, () => new Circle(8, 'black'));
                 stage.addChild(bullet);
             }
 
@@ -116,17 +119,42 @@ function setup() {
 
         });
 
+        foeBullets = foeBullets.filter(bullet => {
+            bullet.x += bullet.vx;
+            bullet.y += bullet.vy;
+            let collision = outsideBounds(bullet, stage.localBounds);
+            if (collision) {
+                //stage.removeChild(bullet);
+                return false;
+            }
+            let hitPlayer = hit(tank, bullet);
+            if (hitPlayer) {
+                playerBox.width = box.width - 0.5;
+                playerBox.height = box.height - 0.5;
+                stage.removeChild(bullet);
+                return false;
+            }
+
+            return true;
+        });
+
+
         bullets = bullets.filter(bullet => {
             bullet.x += bullet.vx;
             bullet.y += bullet.vy;
 
             let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
-                //remove(bullet);
+                stage.removeChild(bullet);
                 return false;
             }
-
-            return true;
+            let hitFoes = hit(bullet, gunTurrets, false, false, false,
+                (collision, sprite) => {
+                    stage.removeChild(sprite);
+                    stage.removeChild(bullet);
+                    gunTurrets.splice(gunTurrets.indexOf(sprite), 1);
+                });
+            return !hitFoes;
         });
 
         render(canvas, stage)

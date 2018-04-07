@@ -978,7 +978,9 @@ function hit(a, b, react = false, bounce = false, global, extra = undefined) {
         for (let i = b.length - 1; i >= 0; i--) {
             let sprite = b[i];
             collision = findCollisionType(a, sprite);
-            if (collision && extra) extra(collision, sprite);
+            if (collision && extra)  {
+                extra(collision, sprite);
+            }
         }
     }
 

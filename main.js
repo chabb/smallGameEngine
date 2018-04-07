@@ -1,6 +1,6 @@
-import {findAngle, rotateSprite} from "./utility.js";
-import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from "./sprites.js";
-import {keyboard} from "./keyboard.js";
+import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from './sprites.js';
+import {keyboard} from './keyboard.js';
+import {shoot} from './utility.js';
 
 function setup() {
     let canvas = makeCanvas(600, 600);
@@ -8,6 +8,7 @@ function setup() {
     let box = new Rectangle(32, 32 ,'gray');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
+    let bullets = [];
 
     turret.x = 16;
     turret.y = 16;
@@ -28,6 +29,13 @@ function setup() {
     tank.moveForward = false;
 
     let leftArrow = keyboard(37), rightArrow = keyboard(39), upArrow = keyboard(38);
+    let space = keyboard(32);
+
+    space.press = () => {
+       let bullet = shoot(tank, tank.rotation, 32, 7, bullets, () => new Circle(8, 'red'));
+       stage.addChild(bullet);
+    };
+
     leftArrow.press = () => tank.rotationSpeed = -0.1;
     leftArrow.release = () => {
         if (!rightArrow.isDown) tank.rotationSpeed = 0;
@@ -53,10 +61,23 @@ function setup() {
             tank.vx *= tank.frictionX;
             tank.vy *= tank.frictionY;
         }
-        console.log(tank.ax, tank.ay, tank.vx, tank.vy);
+
 
         tank.x += tank.vx;
         tank.y += tank.vy;
+
+        bullets = bullets.filter(bullet => {
+            bullet.x += bullet.vx;
+            bullet.y += bullet.vy;
+
+            let collision = false;
+            if (collision) {
+                return false;
+            }
+
+            return true;
+        });
+        console.log(bullets);
 
         render(canvas, stage)
     }

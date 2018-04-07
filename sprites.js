@@ -325,7 +325,7 @@ export class Group extends DisplayObject {
             });
         }
         this.width = this._newWidth;
-        this.height + this._newHeight;
+        this.height = this._newHeight;
     }
 }
 

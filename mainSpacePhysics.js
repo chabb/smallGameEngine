@@ -2,50 +2,15 @@ import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from 
 import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
 
-let width = 900;
-let height = 900;
-let stage, canvas;
-
-
-function makeGunTurret() {
-    let x = Math.floor(Math.random() * width);
-    let y = Math.floor(Math.random() * height);
-    let rotationSpeed = Math.random() * 0.5;
-
-    let box = new Rectangle(32, 32 ,'gray', 'black');
-    let turret = new Line('red', 4, 0, 0, 32, 0);
-    let gunTurret = new Group(box, turret);
-    turret.x = 16;
-    turret.y = 16;
-    gunTurret.rotationSpeed = rotationSpeed;
-    gunTurret.rotation = Math.random() * Math.PI;
-    stage.addChild(gunTurret);
-    gunTurret.x = x;
-    gunTurret.y = y;
-
-    // shitty because depens on frame rates :(
-    gunTurret.firingRate =  40 + Math.floor(Math.random() * 30);
-
-    return gunTurret;
-}
-
-
-
 function setup() {
-    let frames = 0;
-    canvas = makeCanvas(width, height);
-    stage = new DisplayObject();
-    stage.width = width;
-    stage.height = height;
+    let canvas = makeCanvas(600, 600);
+    let stage = new DisplayObject()
+    stage.width = 600;
+    stage.height = 600;
     let box = new Rectangle(32, 32 ,'gray');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
     let bullets = [];
-
-    let gunTurrets = [];
-    for (let i = 0; i < 8; i++) {
-        gunTurrets.push(makeGunTurret());
-    }
 
     turret.x = 16;
     turret.y = 16;
@@ -57,10 +22,10 @@ function setup() {
 
     tank.vx = 0;
     tank.vy = 0;
-    tank.ax = 0.1;
-    tank.ay = 0.1;
-    tank.friction = 0.96;
-    tank.speed = 0;
+    tank.ax = 0.2;
+    tank.ay = 0.2;
+    tank.frictionX = 0.96;
+    tank.frictionY = 0.96;
 
     tank.rotationSpeed = 0;
     tank.moveForward = false;
@@ -88,33 +53,20 @@ function setup() {
     gameLoop();
 
     function gameLoop() {
-        frames++;
         window.requestAnimationFrame(gameLoop);
         tank.rotation += tank.rotationSpeed;
         if (tank.moveForward) {
-            tank.speed += 0.1;
+            tank.vx += tank.ax * Math.cos(tank.rotation);
+            tank.vy += tank.ay * Math.sin(tank.rotation);
+
         } else {
-            tank.speed *= tank.friction;
+            tank.vx *= tank.frictionX;
+            tank.vy *= tank.frictionY;
         }
 
-        tank.ax = tank.speed * Math.cos(tank.rotation);
-        tank.ay = tank.speed * Math.sin(tank.rotation);
-
-        tank.vx = tank.ax;
-        tank.vy = tank.ay;
 
         tank.x += tank.vx;
         tank.y += tank.vy;
-
-        gunTurrets.forEach(turret =>  {
-            if (frames % turret.firingRate === 0) {
-                let bullet = shoot(turret, turret.rotation, 32, 10, bullets, () => new Circle(8, 'black'));
-                stage.addChild(bullet);
-            }
-
-            turret.rotation += turret.rotationSpeed;
-
-        });
 
         bullets = bullets.filter(bullet => {
             bullet.x += bullet.vx;
@@ -128,12 +80,14 @@ function setup() {
 
             return true;
         });
+        console.log(bullets);
 
         render(canvas, stage)
     }
 }
 function outsideBounds(sprite, bounds, extra = undefined) {
     let x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;
+    console.log(x, y, width, height);
     let collision = false;
     if ( sprite.x < x - sprite.width ) {
         collision = 'left';

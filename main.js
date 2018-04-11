@@ -124,7 +124,7 @@ function setup() {
             bullet.y += bullet.vy;
             let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
-                //stage.removeChild(bullet);
+                stage.removeChild(bullet);
                 return false;
             }
             let hitPlayer = hit(tank, bullet);

@@ -1,5 +1,3 @@
-import {grid, group, stage} from "../../adv-game-design-w-html5-javascript-master/library/display";
-
 export class DisplayObject {
     constructor() {
         this.x = 0;
@@ -528,6 +526,9 @@ export function grid(
 //A higher level wrapper for the group sprite
 export function group(stage, ...spritesToGroup) {
 
+    if (!stage) {
+        stage = window.stage;
+    }
     //Create the sprite
     let sprite = new Group(...spritesToGroup);
     //Add the sprite to the stage

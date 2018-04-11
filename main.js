@@ -1,4 +1,4 @@
-import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from './sprites.js';
+import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas, grid} from './sprites.js';
 import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
 import {hit} from './collision.js';
@@ -92,6 +92,18 @@ function setup() {
 
     upArrow.press = () => tank.moveForward = true;
     upArrow.release = () => tank.moveForward = false;
+
+    /*grid(
+        columns = 0, rows = 0, cellWidth = 32, cellHeight = 32,
+        centerCell = false, xOffset = 0, yOffset = 0,
+        makeSprite = undefined,
+        extra = undefined*/
+
+    let grid = grid(50, 50, 50, 50, false, 0, 0 ,
+        () => {
+            let rectangle = new Rectangle(50, 50);
+            // grid will add the rectangle to the stage
+        });
 
     gameLoop();
 

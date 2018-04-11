@@ -33,6 +33,10 @@ function makeGunTurret() {
 }
 
 
+
+// there is to way to implement rotation, either in the game engine, or we just update all the childs during the update
+// implementing in the viewport
+
 function setup() {
     let frames = 0;
     canvas = makeCanvas(width, height);
@@ -200,3 +204,13 @@ function outsideBounds(sprite, bounds, extra = undefined) {
 setup();
 
 render();
+
+
+// we do not care about rotation in our rendering process, as we make the
+// assumption that children will never overflow their parents, and we know that
+// we'll have a least one parent is NOT rotated, have correct coordinates
+
+// NOW this create issue if we break that, because all our calculations will fail
+// how to simulate a following viewport, if the parent rotate, we'll need to update all the children
+// other way, would be to update all the other sprites, in all opposite values ( ad-hoc ) so it
+// will help us to understand the process

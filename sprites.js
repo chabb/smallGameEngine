@@ -1,3 +1,7 @@
+import {circle} from "../../adv-game-design-w-html5-javascript-master/library/display";
+
+circle
+
 export class DisplayObject {
     constructor() {
         this.x = 0;

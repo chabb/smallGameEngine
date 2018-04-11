@@ -49,6 +49,14 @@ function setup() {
     let bullets = [];
     let foeBullets = [];
 
+
+    // background grid
+    grid(50, 50, 50, 50, false, 0, 0 ,
+        () => {
+            let rectangle = new Rectangle(50, 50, 'grey', 'rgba(255, 1, 1, 0.1)');
+            return rectangle;
+        });
+
     playerBox = box;
     let gunTurrets = [];
     for (let i = 0; i < 8; i++) {
@@ -92,18 +100,6 @@ function setup() {
 
     upArrow.press = () => tank.moveForward = true;
     upArrow.release = () => tank.moveForward = false;
-
-    /*grid(
-        columns = 0, rows = 0, cellWidth = 32, cellHeight = 32,
-        centerCell = false, xOffset = 0, yOffset = 0,
-        makeSprite = undefined,
-        extra = undefined*/
-
-    let grid = grid(50, 50, 50, 50, false, 0, 0 ,
-        () => {
-            let rectangle = new Rectangle(50, 50);
-            // grid will add the rectangle to the stage
-        });
 
     gameLoop();
 

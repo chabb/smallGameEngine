@@ -162,7 +162,7 @@ function setup() {
             return !hitFoes;
         });
 
-        for (let i = particles.length - 1; i >=0; i--) {
+        for (let i = particles.length - 1; i >= 0; i--) {
             // as we can potentially remove the particle, we iterate from the
             // end to avoid messing the iteration
             let particle = particles[i];

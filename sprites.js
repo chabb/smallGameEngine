@@ -388,7 +388,63 @@ export function tilingSprite(width, height, source, x = 0, y = 0) {
         rows = 2;
     }
 
-    grid()
+    let tileGrid = grid(columns, rows, tileWidth, tileHeight, false, 0 ,0, () => {
+        let tile = undefined;//sprite(source);
+        return tile;
+    });
+    tileGrid._tileX = 0;
+    tileGrid._tileY = 0;
+
+    // empty rectangle that will mask the grid
+    // tileGrid is BIGGER than the rectangle
+    let container = new Rectangle(width, height, 'none', 'none');
+    container.addChild(tileGrid);
+    // TODO (chab) ADD TO THE STAGE
+
+    Object.defineProperties(container, {
+        tileX: {
+            get() {
+                return tileGrid._tileX;
+            },
+            set(value) {
+                tileGrid.children.forEach(child => {
+                    let difference = value - tileGrid._tileX;
+                    child.x += difference;
+                    // if x position of the sprite exceeds the total width of the visible columns, reposition
+                    // it in fornt of the left edge of the container
+                    if (child.x > (columns - 1) * tileWidth) {
+                        child.x = 0 - tileWidth + difference;
+                    }
+                    // same for sprites that go too far on the left
+                    if (child.x < 0 - tileWidth - difference) {
+                        child.x = (columns + 1) * tileWidth;
+                    }
+                });
+                tileGrid._tileX = value;
+            }, enumerable: true, configurable:true
+        },
+        tileY: {
+            get() {
+                return tileGrid._tileY
+            },
+            set(value) {
+                tileGrid.children.forEach(child => {
+                    let difference = value - tileGrid._tileY;
+                    child.y += difference;
+                    if (child.y > (rows - 1) * tileHeight) {
+                        child.y = 0 - tileHeight + difference;
+                    }
+                    if (child.y < 0 - tileHeight - difference) {
+                        child.y = (rows - 1) * tileHeight;
+                    }
+                });
+                tileGrid._tileY = value;
+                }, enumerable: true, configurable: true
+            }
+        });
+    return container;
+    container.mask = true;
+
 }
 
 

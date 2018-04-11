@@ -24,3 +24,9 @@ export function shoot(shooter, angle, offsetFromCenter, bulletSpeed, bulletArray
     bulletArray.push(bullet);
     return bullet;
 }
+
+export function remove(...spritesToRemove) {
+    spritesToRemove.forEach(sprite => {
+        sprite.parent.removeChild(sprite);
+    });
+}

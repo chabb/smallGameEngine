@@ -1,3 +1,5 @@
+import {grid, group} from "../../adv-game-design-w-html5-javascript-master/library/display";
+
 export class DisplayObject {
     constructor() {
         this.x = 0;
@@ -351,6 +353,45 @@ export class Sprite extends DisplayObject {
 }
 
 
+// Here is the thing
+// capture width and height of the source image
+// figure out how many images we can fit in the rectangle
+// make a grid object that is larger than the sprite by one row and one column
+// create a rectangle object, add the grid has its child
+// set rectangle mask property to true
+// add tileX, tileY property to ther rectangle, the setter will shift the postiions of the grid tiles
+// proportionally
+// return the rectangle sprite back to the main program
+
+export function tilingSprite(width, height, source, x = 0, y = 0) {
+
+    let tileWidth, tileHeight;
+    if (source.frame) {
+        tileWidth = source.frame.w;
+        tileHeight = source.frame.h;
+    } else {
+        tileWidth = source.w;
+        tileHeight = source.h;
+    }
+
+    let columns, rows;
+    if (width >= tileWidth) {
+        columns = Math.round(width/ tileWidth) + 1;
+
+    } else {
+        columns = 2;
+    }
+
+    if (height >= tileHeight) {
+        rows = Math.round(height/ tileHeight) + 1;
+    } else {
+        rows = 2;
+    }
+
+    grid()
+}
+
+
 export function makeCanvas(width = 256, heigth = 256, border = '1px dashed black', backgroundColor = 'white') {
     let canvas = document.createElement('canvas');
     canvas.width = width;
@@ -361,4 +402,69 @@ export function makeCanvas(width = 256, heigth = 256, border = '1px dashed black
     // not a good practice;
     canvas.ctx = canvas.getContext('2d');
     return canvas;
+}
+
+export function grid(
+    columns = 0, rows = 0, cellWidth = 32, cellHeight = 32,
+    centerCell = false, xOffset = 0, yOffset = 0,
+    makeSprite = undefined,
+    extra = undefined
+){
+
+    //Create an empty group called `container`. This `container`
+    //group is what the function returns back to the main program.
+    //All the sprites in the grid cells will be added
+    //as children to this container
+    let container = group();
+
+    //The `create` method plots the grid
+
+    let createGrid = () => {
+
+        //Figure out the number of cells in the grid
+        let length = columns * rows;
+
+        //Create a sprite for each cell
+        for(let i = 0; i < length; i++) {
+
+            //Figure out the sprite's x/y placement in the grid
+            let x = (i % columns) * cellWidth,
+                y = Math.floor(i / columns) * cellHeight;
+
+            //Use the `makeSprite` function supplied in the constructor
+            //to make a sprite for the grid cell
+            let sprite = makeSprite();
+
+            //Add the sprite to the `container`
+            container.addChild(sprite);
+
+            //Should the sprite be centered in the cell?
+            //No, it shouldn't be centered
+            if (!centerCell) {
+                sprite.x = x + xOffset;
+                sprite.y = y + yOffset;
+            }
+            //Yes, it should be centered
+            else {
+                sprite.x
+                    = x + (cellWidth / 2)
+                    - sprite.halfWidth + xOffset;
+                sprite.y
+                    = y + (cellHeight / 2)
+                    - sprite.halfHeight + yOffset;
+            }
+
+            //Run any optional extra code. This calls the
+            //`extra` function supplied by the constructor
+            if (extra) {
+                extra(sprite);
+            }
+        }
+    };
+
+    //Run the `createGrid` method
+    createGrid();
+
+    //Return the `container` group back to the main program
+    return container;
 }

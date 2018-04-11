@@ -4,7 +4,8 @@
  *
  */
 
-import {circle} from './sprites.js'
+import {Circle, Rectangle} from './sprites.js'
+import {remove} from "./utility.js";
 
 
 // I like this design, when the array is shared during the whole lifetime
@@ -14,18 +15,27 @@ export let particles = [];
 export function particleEffect(
     x = 0,
     y = 0,
-    spriteFunction = () => circle(10, 'red'),
+    spriteFunction = () => {
+
+        // TODO(chab) remove
+        if (!stage) {
+            stage = window.stage;
+        }
+        let c = new Rectangle(10, 10,'red')
+        stage.addChild(c);
+        return c;
+    },
     numberOfParticles = 10,
     gravity = 0,
     randomSpacing = true,
     minAngle = 0,
     maxAngle = 6.28, // 2 * Math.PI -> radians
-    minSize = 4,
-    maxSize = 16,
-    minSpeed = 0.1, maxSpeed = 0.1,
+    minSize = 10,
+    maxSize = 20,
+    minSpeed = 0.1, maxSpeed = 0.9,
     minScaleSpeed = 0.01, maxScaleSpeed = 0.05,
     minAlphaSpeed = 0.02, maxAlphaSpeed = 0.02,
-    minRotationSpeed = 0.01, maxRotationSpeed = 0.03
+    minRotationSpeed = 0.05, maxRotationSpeed = 0.1
 ) {
     let randomFloat = (min, max) => min + Math.random() * (max - min);
     let randomInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
@@ -42,7 +52,7 @@ export function particleEffect(
             angle += spacing;
         }
     }
-    angles.forEach(angle => makeParticle(angle);
+    angles.forEach(angle => makeParticle(angle));
 
     function makeParticle(angle) {
         let particle = spriteFunction();
@@ -72,7 +82,7 @@ export function particleEffect(
             if (particle.scaleY - particle.scaleSpeed > 0) {
                 particle.scaleY -= particle.scaleSpeed;
             }
-            particle.rotationSpeed += particle.rotationSpeed;
+            particle.rotation += particle.rotationSpeed;
             particle.alpha -= particle.alphaSpeed;
 
             if (particle.alpha <= 0) {

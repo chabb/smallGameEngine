@@ -2,6 +2,7 @@ import {Circle, DisplayObject, Rectangle, Group, render, Line, makeCanvas} from 
 import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
 import {hit} from './collision.js';
+import {particleEffect, particles} from "./particle.js";
 
 let width = 900;
 let height = 900;
@@ -36,6 +37,10 @@ function setup() {
     let frames = 0;
     canvas = makeCanvas(width, height);
     stage = new DisplayObject();
+
+    // TODO(chab) remove
+    window.stage = stage;
+
     stage.width = width;
     stage.height = height;
     let box = new Rectangle(32, 32 ,'gray');
@@ -114,9 +119,7 @@ function setup() {
                 let bullet = shoot(turret, turret.rotation, 32, 4, foeBullets, () => new Circle(8, 'black'));
                 stage.addChild(bullet);
             }
-
             turret.rotation += turret.rotationSpeed;
-
         });
 
         foeBullets = foeBullets.filter(bullet => {
@@ -153,9 +156,18 @@ function setup() {
                     stage.removeChild(sprite);
                     stage.removeChild(bullet);
                     gunTurrets.splice(gunTurrets.indexOf(sprite), 1);
+                    particleEffect(sprite.x, sprite.y);
                 });
+
             return !hitFoes;
         });
+
+        for (let i = particles.length - 1; i >=0; i--) {
+            // as we can potentially remove the particle, we iterate from the
+            // end to avoid messing the iteration
+            let particle = particles[i];
+            particle.update();
+        }
 
         render(canvas, stage)
     }
@@ -178,3 +190,5 @@ function outsideBounds(sprite, bounds, extra = undefined) {
     return collision;
 }
 setup();
+
+render();

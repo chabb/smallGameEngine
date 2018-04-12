@@ -201,7 +201,34 @@ function setup() {
                     stage.removeChild(bullet);
                     stage.removeChild(sprite);
                     gunTurrets.splice(gunTurrets.indexOf(sprite), 1);
-                    particleEffect(sprite.x, sprite.y);
+                    particleEffect(sprite.x,
+                        sprite.y,
+                        (idx, total) => {
+                            // TODO(chab) remove
+                            if (!stage) {
+                                stage = window.stage;
+                            }
+                            let color = Math.floor( 60 + (idx / total) * 100);
+                            let fill = `rgba(${color}, ${color}, ${color}, 1)`;
+                            let c = new Rectangle(10, 10,'red', fill);
+                            stage.addChild(c);
+                            return c;
+                        },
+                        10,
+                        0,
+                        true,
+                        0,
+                        6.28, // 2 * Math.PI -> radians
+                        6,
+                        20,
+                        0.4,
+                        1.5,
+                        0.01,
+                        0.05,
+                        0.02,
+                        0.04,
+                        sprite.rotationSpeed - 0.3, sprite.rotationSpeed + 0.3
+                    )
                 });
 
             return !hitFoes;

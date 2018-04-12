@@ -15,7 +15,7 @@ export let particles = [];
 export function particleEffect(
     x = 0,
     y = 0,
-    spriteFunction = () => {
+    spriteFunction = (idx) => {
 
         // TODO(chab) remove
         if (!stage) {
@@ -31,7 +31,7 @@ export function particleEffect(
     minAngle = 0,
     maxAngle = 6.28, // 2 * Math.PI -> radians
     minSize = 10,
-    maxSize = 20,
+    maxSize = 30,
     minSpeed = 0.1, maxSpeed = 0.9,
     minScaleSpeed = 0.01, maxScaleSpeed = 0.05,
     minAlphaSpeed = 0.02, maxAlphaSpeed = 0.02,
@@ -52,10 +52,10 @@ export function particleEffect(
             angle += spacing;
         }
     }
-    angles.forEach(angle => makeParticle(angle));
+    angles.forEach((angle,idx) => makeParticle(angle, idx));
 
-    function makeParticle(angle) {
-        let particle = spriteFunction();
+    function makeParticle(angle, idx) {
+        let particle = spriteFunction(idx, angles.length);
         if (particle.frames.length > 0) {
             // go thru frame
             particle.goToAndStop(randomInt(0, particle.frames.length) - 1)

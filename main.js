@@ -10,6 +10,27 @@ let stage, canvas;
 
 let playerBox;
 
+// ugly code to play music
+let audioBuffer;
+let context = new AudioContext();
+let getSound = new XMLHttpRequest();
+getSound.responseType = 'arraybuffer';
+getSound.open("GET", "music.mp3", true);
+getSound.onload = function() {
+    context.decodeAudioData(getSound.response).then(buffer => {
+        audioBuffer = buffer; // assign the buffer to a variable that can then be 'played'
+        playSound();
+    })
+};
+getSound.send();
+
+function playSound() {
+    let playSound = context.createBufferSource();
+    playSound.buffer = audioBuffer;
+    playSound.connect(context.destination);
+    playSound.start(0)
+}
+
 function makeGunTurret() {
     let x = Math.floor(Math.random() * width);
     let y = Math.floor(Math.random() * height);
@@ -133,7 +154,6 @@ function setup() {
         stage.currentPosition.x += tank.vx;
         stage.currentPosition.y += tank.vy;
         //stage.currentPosition.rotation += tank.rotationSpeed;
-        console.log(stage.currentPosition, tank.x, tank.y);
 
         gunTurrets.forEach(turret =>  {
             if (frames % turret.firingRate === 0) {
@@ -166,6 +186,7 @@ function setup() {
         bullets = bullets.filter(bullet => {
             bullet.x += bullet.vx;
             bullet.y += bullet.vy;
+
 
             let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
@@ -214,11 +235,4 @@ function outsideBounds(sprite, bounds, extra = undefined) {
 }
 setup();
 
-// we do not care about rotation in our rendering process, as we make the
-// assumption that children will never overflow their parents, and we know that
-// we'll have a least one parent is NOT rotated, have correct coordinates
-
-// NOW this create issue if we break that, because all our calculations will fail
-// how to simulate a following viewport, if the parent rotate, we'll need to update all the children
-// other way, would be to update all the other sprites, in all opposite values ( ad-hoc ) so it
-// will help us to understand the process
+// we can update the local bounds of the stage in the getter according to the current viewport !!

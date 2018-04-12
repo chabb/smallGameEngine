@@ -126,8 +126,9 @@ export class DisplayObject {
     }
 
     removeChild(sprite) {
-        if (sprite.parent) {
+        if (sprite.parent === this) {
             this.children.splice(this.children.indexOf(sprite), 1);
+
         } else {
             throw new Error(sprite + 'is not a child of ' + this);
         }
@@ -338,6 +339,7 @@ export class Group extends DisplayObject {
         this.calculateSize();
     }
     removeChild(sprite) {
+
         if(sprite.parent === this) {
             this.children.splice(this.children.indexOf(sprite), 1);
             this.calculateSize();

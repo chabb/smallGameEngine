@@ -19,7 +19,7 @@ getSound.open("GET", "music.mp3", true);
 getSound.onload = function() {
     context.decodeAudioData(getSound.response).then(buffer => {
         audioBuffer = buffer; // assign the buffer to a variable that can then be 'played'
-        playSound();
+        //playSound();
     })
 };
 getSound.send();
@@ -107,6 +107,7 @@ function setup() {
     tank.ay = 0.1;
     tank.friction = 0.96;
     tank.speed = 0;
+    tank.debug = 'tank';
 
     tank.rotationSpeed = 0;
     tank.moveForward = false;
@@ -168,6 +169,7 @@ function setup() {
             bullet.y += bullet.vy;
             let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
+                // something is off there
                 stage.removeChild(bullet);
                 return false;
             }
@@ -177,26 +179,27 @@ function setup() {
                 playerBox.height = box.height - 0.5;
                 stage.removeChild(bullet);
                 return false;
+            } else {
+                return true;
             }
-
-            return true;
         });
 
 
         bullets = bullets.filter(bullet => {
             bullet.x += bullet.vx;
             bullet.y += bullet.vy;
-
-
             let collision = outsideBounds(bullet, stage.localBounds);
             if (collision) {
                 stage.removeChild(bullet);
                 return false;
             }
-            let hitFoes = hit(bullet, gunTurrets, false, false, false,
+            let hitFoes = false;
+            // we need to manually update hitfoes in the callback coz we do not set it in the lib
+            hit(bullet, gunTurrets, false, false, false,
                 (collision, sprite) => {
-                    stage.removeChild(sprite);
+                    hitFoes = true;
                     stage.removeChild(bullet);
+                    stage.removeChild(sprite);
                     gunTurrets.splice(gunTurrets.indexOf(sprite), 1);
                     particleEffect(sprite.x, sprite.y);
                 });

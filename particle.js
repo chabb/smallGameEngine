@@ -21,7 +21,7 @@ export function particleEffect(
         if (!stage) {
             stage = window.stage;
         }
-        let c = new Rectangle(10, 10,'red')
+        let c = new Rectangle(10, 10,'red');
         stage.addChild(c);
         return c;
     },

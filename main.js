@@ -45,8 +45,13 @@ function setup() {
     // TODO(chab) remove
     window.stage = stage;
 
+    stage.currentPosition = {};
     stage.width = width;
     stage.height = height;
+    stage.currentPosition.y = 0;
+    stage.currentPosition.x = 0;
+    stage.currentPosition.rotation = 0;
+
     let box = new Rectangle(32, 32 ,'gray');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
@@ -125,6 +130,10 @@ function setup() {
 
         tank.x += tank.vx;
         tank.y += tank.vy;
+        stage.currentPosition.x += tank.vx;
+        stage.currentPosition.y += tank.vy;
+        //stage.currentPosition.rotation += tank.rotationSpeed;
+        console.log(stage.currentPosition, tank.x, tank.y);
 
         gunTurrets.forEach(turret =>  {
             if (frames % turret.firingRate === 0) {
@@ -186,14 +195,16 @@ function setup() {
 }
 function outsideBounds(sprite, bounds, extra = undefined) {
     let x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;
+
+
     let collision = false;
-    if ( sprite.x < x - sprite.width ) {
+    if ( sprite.x - stage.currentPosition.x < x - sprite.width ) {
         collision = 'left';
-    } else if (sprite.y < y - sprite.height) {
+    } else if (sprite.y - stage.currentPosition.y < y - sprite.height) {
         collision = 'top';
-    } else if (sprite.x > width) {
+    } else if (sprite.x - stage.currentPosition.x > width) {
         collision = 'right';
-    } else if (sprite.y > height) {
+    } else if (sprite.y  - stage.currentPosition.y > height) {
         collision = 'bottom';
     }
     if (extra) {
@@ -202,9 +213,6 @@ function outsideBounds(sprite, bounds, extra = undefined) {
     return collision;
 }
 setup();
-
-render();
-
 
 // we do not care about rotation in our rendering process, as we make the
 // assumption that children will never overflow their parents, and we know that

@@ -1,7 +1,3 @@
-import {circle} from "../../adv-game-design-w-html5-javascript-master/library/display";
-
-circle
-
 export class DisplayObject {
     constructor() {
         this.x = 0;
@@ -181,15 +177,33 @@ export function render(canvas, stage) {
     let ctx = canvas.ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+
+
     stage.children.forEach(sprite => {
+
+        if (stage.currentPosition) {
+            ctx.save();
+            ctx.translate(-stage.currentPosition.x, -stage.currentPosition.y);
+            ctx.rotate(stage.currentPosition.rotation);
+        }
         displaySprite(sprite);
+        ctx.restore();
     });
 
+
     function displaySprite(sprite) {
-        if (sprite.visible && sprite.gx < canvas.width
-            && sprite.gx + sprite.width >= -sprite.width
-            && sprite.gy < canvas.height + sprite.height
-            && sprite.gy + sprite.height >= -sprite.height
+
+        // now we need to update the viewport
+
+        let dx = 0, dy = 0;
+        if (stage.currentPosition) {
+            dx = stage.currentPosition.x;
+            dy = stage.currentPosition.y;
+        }
+        if (sprite.visible && sprite.gx - dx < canvas.width
+            && sprite.gx + sprite.width - dx >= -sprite.width
+            && sprite.gy - dy < canvas.height + sprite.height
+            && sprite.gy + sprite.height - dy >= -sprite.height
         ) {
             ctx.save();
 
@@ -215,9 +229,10 @@ export function render(canvas, stage) {
                     displaySprite(child);
                 })
             }
+            ctx.restore();
         }
 
-        ctx.restore();
+
     }
 }
 

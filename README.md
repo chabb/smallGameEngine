@@ -1,1 +1,3 @@
 A work-in-progress game
+
+Music, pixel art, bugs...

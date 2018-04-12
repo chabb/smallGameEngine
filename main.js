@@ -19,7 +19,7 @@ getSound.open("GET", "music.mp3", true);
 getSound.onload = function() {
     context.decodeAudioData(getSound.response).then(buffer => {
         audioBuffer = buffer; // assign the buffer to a variable that can then be 'played'
-        //playSound();
+        playSound();
     })
 };
 getSound.send();

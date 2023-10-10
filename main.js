@@ -3,6 +3,7 @@ import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
 import {hit} from './collision.js';
 import {particleEffect, particles} from "./particle.js";
+import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
 
 let width = 900;
 let height = 900;
@@ -130,7 +131,17 @@ function setup() {
     };
 
     upArrow.press = () => tank.moveForward = true;
-    upArrow.release = () => tank.moveForward = false;
+    upArrow.release = () => tank.moveForward = false
+
+    const socket = io("http://localhost:3000");
+    socket.on('connect', () => {
+        console.log('socket connected', socket.id);
+        socket.emit('register', { id: socket.id });
+    });
+    socket.on('registered', (id, callback) => {
+        console.log('registered on server');
+        callback();
+    })
 
     gameLoop();
 

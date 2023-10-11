@@ -93,17 +93,26 @@ function setup() {
        stage.addChild(bullet);
     };
 
-    leftArrow.press = () => tank.rotationSpeed = -0.1;
+    leftArrow.press = () => {
+        tank.rotationSpeed = -0.1;
+    }
     leftArrow.release = () => {
         if (!rightArrow.isDown) tank.rotationSpeed = 0;
     };
-    rightArrow.press = () => tank.rotationSpeed = 0.1;
+    rightArrow.press = () => {
+        tank.rotationSpeed = 0.1;
+    }
     rightArrow.release = () => {
         if (!leftArrow.isDown) tank.rotationSpeed = 0;
     };
 
-    upArrow.press = () => tank.moveForward = true;
-    upArrow.release = () => tank.moveForward = false
+    upArrow.press = () => {
+        tank.moveForward = true;
+    }
+
+    upArrow.release = () => {
+        tank.moveForward = false
+    }
 
     const socket = io("http://localhost:3000");
     socket.on('connect', () => {
@@ -138,6 +147,23 @@ function setup() {
         callback(newTank.x, newTank.y);
         console.log(playerTanks);
     });
+
+    // player actions are not acknowledged
+    socket.on('rotateLeft', index => {
+        playerTanks[index].rotationSpeed = 0.1;
+    });
+    socket.on('rotateRight', index => {
+        playerTanks[index].rotationSpeed = -0.1;
+    });
+
+    socket.on('stop', index => {
+        playerTanks[index].moveForward = false;
+    });
+    socket.on('forward', index => {
+        playerTanks[index].moveForward = true;
+    });
+
+
 
     function createTank(currentPlayer = true) {
         const box = new Rectangle(32, 32 ,'gray');

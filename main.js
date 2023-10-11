@@ -72,6 +72,7 @@ function setup() {
     let box = new Rectangle(32, 32 ,'gray');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let tank;
+    let playerTanks = [];
     let bullets = [];
     let foeBullets = [];
 
@@ -90,8 +91,6 @@ function setup() {
     turret.x = 16;
     turret.y = 16;
     tank = new Group(box, turret);
-    //stage.addChild(box);
-    //stage.addChild(turret);
 
     tank.vx = 0;
     tank.vy = 0;
@@ -145,24 +144,31 @@ function setup() {
 
     gameLoop();
 
+
+    function updateTank(tankToUpdate) {
+        tankToUpdate.rotation += tankToUpdate.rotationSpeed;
+        if (tankToUpdate.moveForward) {
+            tankToUpdate.speed += 0.1;
+        } else {
+            tankToUpdate.speed *= tankToUpdate.friction;
+        }
+
+        tankToUpdate.ax = tankToUpdate.speed * Math.cos(tankToUpdate.rotation);
+        tankToUpdate.ay = tankToUpdate.speed * Math.sin(tankToUpdate.rotation);
+
+        tankToUpdate.vx = tankToUpdate.ax;
+        tankToUpdate.vy = tankToUpdate.ay;
+
+        tankToUpdate.x += tankToUpdate.vx;
+        tankToUpdate.y += tankToUpdate.vy;
+    }
+
     function gameLoop() {
         frames++;
         window.requestAnimationFrame(gameLoop);
-        tank.rotation += tank.rotationSpeed;
-        if (tank.moveForward) {
-            tank.speed += 0.1;
-        } else {
-            tank.speed *= tank.friction;
-        }
+        updateTank(tank);
+        playerTanks.forEach(tankToUpdate => updateTank(tankToUpdate));
 
-        tank.ax = tank.speed * Math.cos(tank.rotation);
-        tank.ay = tank.speed * Math.sin(tank.rotation);
-
-        tank.vx = tank.ax;
-        tank.vy = tank.ay;
-
-        tank.x += tank.vx;
-        tank.y += tank.vy;
         stage.currentPosition.x += tank.vx;
         stage.currentPosition.y += tank.vy;
         //stage.currentPosition.rotation += tank.rotationSpeed;

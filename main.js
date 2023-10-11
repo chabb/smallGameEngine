@@ -92,8 +92,6 @@ function setup() {
     tank = new Group(box, turret);
     //stage.addChild(box);
     //stage.addChild(turret);
-    stage.addChild(tank);
-    stage.putCenter(tank);
 
     tank.vx = 0;
     tank.vy = 0;
@@ -139,6 +137,9 @@ function setup() {
     socket.on('state', (state, callback) => {
         console.log('initial state', state)
         state.turrets.forEach(turret => gunTurrets.push(makeGunTurret(turret)));
+        stage.addChild(tank);
+        let offsetDirection = Math.random() > 0.5 ? 1 : -1;
+        stage.putCenter(tank, state.player * 30 * offsetDirection, state.player * 30 * offsetDirection);
         callback();
     })
 

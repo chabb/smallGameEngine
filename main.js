@@ -32,11 +32,7 @@ function playSound() {
     playSound.start(0)
 }
 
-function makeGunTurret() {
-    let x = Math.floor(Math.random() * width);
-    let y = Math.floor(Math.random() * height);
-    let rotationSpeed = Math.random() * 0.5;
-
+function makeGunTurret({x, y, rotationSpeed, firingRate}) {
     let box = new Rectangle(32, 32 ,'gray', 'black');
     let turret = new Line('red', 4, 0, 0, 32, 0);
     let gunTurret = new Group(box, turret);
@@ -47,9 +43,8 @@ function makeGunTurret() {
     stage.addChild(gunTurret);
     gunTurret.x = x;
     gunTurret.y = y;
-
     // shitty because depens on frame rates :(
-    gunTurret.firingRate =  40 + Math.floor(Math.random() * 30);
+    gunTurret.firingRate = firingRate;
 
     return gunTurret;
 }
@@ -90,9 +85,7 @@ function setup() {
 
     playerBox = box;
     let gunTurrets = [];
-    for (let i = 0; i < 8; i++) {
-        gunTurrets.push(makeGunTurret());
-    }
+
 
     turret.x = 16;
     turret.y = 16;
@@ -140,6 +133,12 @@ function setup() {
     });
     socket.on('registered', (id, callback) => {
         console.log('registered on server');
+        callback();
+    })
+
+    socket.on('state', (state, callback) => {
+        console.log('initial state', state)
+        state.turrets.forEach(turret => gunTurrets.push(makeGunTurret(turret)));
         callback();
     })
 

@@ -69,9 +69,8 @@ function setup() {
     stage.currentPosition.x = 0;
     stage.currentPosition.rotation = 0;
 
-    let box = new Rectangle(32, 32 ,'gray');
-    let turret = new Line('red', 4, 0, 0, 32, 0);
-    let tank;
+
+    const tank = createTank();
     let playerTanks = [];
     let bullets = [];
     let foeBullets = [];
@@ -84,14 +83,7 @@ function setup() {
             return rectangle;
         });
 
-    playerBox = box;
     let gunTurrets = [];
-
-
-    turret.x = 16;
-    turret.y = 16;
-
-    tank = createTank();
 
     let leftArrow = keyboard(37), rightArrow = keyboard(39), upArrow = keyboard(38);
     let space = keyboard(32);
@@ -118,8 +110,9 @@ function setup() {
         console.log('socket connected', socket.id);
         socket.emit('register', { id: socket.id });
     });
-    socket.on('registered', (id, callback) => {
-        console.log('registered on server');
+    socket.on('registered', ({id}, callback) => {
+        tank.id = id;
+        console.log('registered on server', tank);
         callback();
     })
 
@@ -129,23 +122,29 @@ function setup() {
         stage.addChild(tank);
         let offsetDirection = Math.random() > 0.5 ? 1 : -1;
         stage.putCenter(tank, state.player * 30 * offsetDirection, state.player * 30 * offsetDirection);
-        callback();
+        callback(tank.x, tank.y);
+        // start game
+        gameLoop();
     })
 
-    socket.on('player', (state, callback) => {
+    socket.on('player', ({id, index}, callback) => {
+        console.log('new player to display');
         let newTank = createTank();
+        newTank.id = id;
         playerTanks.push(newTank);
         stage.addChild(newTank);
-        stage.putCenter(newTank);
-        callback();
+        let offsetDirection = Math.random() > 0.5 ? 1 : -1;
+        stage.putCenter(newTank, index * 30 * offsetDirection, index * 30 * offsetDirection);
+        callback(newTank.x, newTank.y);
+        console.log(playerTanks);
     });
 
-    gameLoop();
-
-
-    function createTank() {
-        tank = new Group(box, turret);
-
+    function createTank(currentPlayer = true) {
+        const box = new Rectangle(32, 32 ,'gray');
+        const turret = new Line('red', 4, 0, 0, 32, 0);
+        turret.x = 16;
+        turret.y = 16;
+        const tank = new Group(box, turret);
         tank.vx = 0;
         tank.vy = 0;
         tank.ax = 0.1;
@@ -153,9 +152,12 @@ function setup() {
         tank.friction = 0.96;
         tank.speed = 0;
         tank.debug = 'tank';
-
         tank.rotationSpeed = 0;
         tank.moveForward = false;
+        if (currentPlayer) {
+            playerBox = box;
+        }
+        return tank
     }
 
     function updateTank(tankToUpdate) {
@@ -205,8 +207,8 @@ function setup() {
             }
             let hitPlayer = hit(tank, bullet);
             if (hitPlayer) {
-                playerBox.width = box.width - 0.5;
-                playerBox.height = box.height - 0.5;
+                playerBox.width = playerBox.width - 0.5;
+                playerBox.height = playerBox.height - 0.5;
                 stage.removeChild(bullet);
                 return false;
             } else {

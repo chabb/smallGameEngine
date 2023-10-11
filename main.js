@@ -90,18 +90,8 @@ function setup() {
 
     turret.x = 16;
     turret.y = 16;
-    tank = new Group(box, turret);
 
-    tank.vx = 0;
-    tank.vy = 0;
-    tank.ax = 0.1;
-    tank.ay = 0.1;
-    tank.friction = 0.96;
-    tank.speed = 0;
-    tank.debug = 'tank';
-
-    tank.rotationSpeed = 0;
-    tank.moveForward = false;
+    tank = createTank();
 
     let leftArrow = keyboard(37), rightArrow = keyboard(39), upArrow = keyboard(38);
     let space = keyboard(32);
@@ -142,8 +132,31 @@ function setup() {
         callback();
     })
 
+    socket.on('player', (state, callback) => {
+        let newTank = createTank();
+        playerTanks.push(newTank);
+        stage.addChild(newTank);
+        stage.putCenter(newTank);
+        callback();
+    });
+
     gameLoop();
 
+
+    function createTank() {
+        tank = new Group(box, turret);
+
+        tank.vx = 0;
+        tank.vy = 0;
+        tank.ax = 0.1;
+        tank.ay = 0.1;
+        tank.friction = 0.96;
+        tank.speed = 0;
+        tank.debug = 'tank';
+
+        tank.rotationSpeed = 0;
+        tank.moveForward = false;
+    }
 
     function updateTank(tankToUpdate) {
         tankToUpdate.rotation += tankToUpdate.rotationSpeed;

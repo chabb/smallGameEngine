@@ -72,6 +72,7 @@ function setup() {
 
     const tank = createTank();
     let playerTanks = [];
+    let tanksById = {};
     let bullets = [];
     let foeBullets = [];
 
@@ -95,22 +96,32 @@ function setup() {
 
     leftArrow.press = () => {
         tank.rotationSpeed = -0.1;
+        socket.emit('rotateLeft', { id: tank. id})
     }
     leftArrow.release = () => {
-        if (!rightArrow.isDown) tank.rotationSpeed = 0;
+        if (!rightArrow.isDown) {
+            socket.emit('stopRotation', { id: tank.id})
+            tank.rotationSpeed = 0;
+        }
     };
     rightArrow.press = () => {
         tank.rotationSpeed = 0.1;
+        socket.emit('rotateRight', { id: tank. id})
     }
     rightArrow.release = () => {
-        if (!leftArrow.isDown) tank.rotationSpeed = 0;
+        if (!leftArrow.isDown) {
+            socket.emit('stopRotation', { id: tank.id})
+            tank.rotationSpeed = 0;
+        }
     };
 
     upArrow.press = () => {
+        socket.emit('forward', { id: tank.id})
         tank.moveForward = true;
     }
 
     upArrow.release = () => {
+        socket.emit('stop', { id: tank.id})
         tank.moveForward = false
     }
 
@@ -128,42 +139,44 @@ function setup() {
     socket.on('state', (state, callback) => {
         console.log('initial state', state)
         state.turrets.forEach(turret => gunTurrets.push(makeGunTurret(turret)));
+        tank.x = state.playerTank.x;
+        tank.y = state.playerTank.y;
         stage.addChild(tank);
-        let offsetDirection = Math.random() > 0.5 ? 1 : -1;
-        stage.putCenter(tank, state.player * 30 * offsetDirection, state.player * 30 * offsetDirection);
         callback(tank.x, tank.y);
         // start game
         gameLoop();
     })
 
-    socket.on('player', ({id, index}, callback) => {
+    socket.on('player', ({id, index, player}, callback) => {
         console.log('new player to display');
         let newTank = createTank();
         newTank.id = id;
+        newTank.x = player.x;
+        newTank.y = player.y;
         playerTanks.push(newTank);
+        tanksById[id] = newTank;
         stage.addChild(newTank);
-        let offsetDirection = Math.random() > 0.5 ? 1 : -1;
-        stage.putCenter(newTank, index * 30 * offsetDirection, index * 30 * offsetDirection);
-        callback(newTank.x, newTank.y);
         console.log(playerTanks);
     });
 
     // player actions are not acknowledged
-    socket.on('rotateLeft', index => {
-        playerTanks[index].rotationSpeed = 0.1;
+    socket.on('rotateLeft', ({id}) => {
+        tanksById[id].rotationSpeed = -0.1;
     });
-    socket.on('rotateRight', index => {
-        playerTanks[index].rotationSpeed = -0.1;
-    });
-
-    socket.on('stop', index => {
-        playerTanks[index].moveForward = false;
-    });
-    socket.on('forward', index => {
-        playerTanks[index].moveForward = true;
+    socket.on('rotateRight', ({id}) => {
+        tanksById[id].rotationSpeed = 0.1;
     });
 
+    socket.on('stopRotation', ({id}) => {
+        tanksById[id].rotationSpeed = 0;
+    });
 
+    socket.on('stop', ({id}) => {
+        tanksById[id].moveForward = false;
+    });
+    socket.on('forward', ({id}) => {
+        tanksById[id].moveForward = true;
+    });
 
     function createTank(currentPlayer = true) {
         const box = new Rectangle(32, 32 ,'gray');
@@ -206,6 +219,7 @@ function setup() {
 
     function gameLoop() {
         frames++;
+        // note that rAF only works on active frame, so you NEED two chrome windows
         window.requestAnimationFrame(gameLoop);
         updateTank(tank);
         playerTanks.forEach(tankToUpdate => updateTank(tankToUpdate));

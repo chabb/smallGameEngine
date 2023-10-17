@@ -178,8 +178,6 @@ export function render(canvas, stage) {
     let ctx = canvas.ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-
-
     stage.children.forEach(sprite => {
 
         if (stage.currentPosition) {
@@ -201,6 +199,7 @@ export function render(canvas, stage) {
             dx = stage.currentPosition.x;
             dy = stage.currentPosition.y;
         }
+
         if (sprite.visible && sprite.gx - dx < canvas.width
             && sprite.gx + sprite.width - dx >= -sprite.width
             && sprite.gy - dy < canvas.height + sprite.height
@@ -303,6 +302,7 @@ export class Circle extends DisplayObject {
 
     }
     render(ctx) {
+
 
         // we could have a prepare context method
         ctx.strokeStyle = this.strokeStyle;

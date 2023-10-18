@@ -129,6 +129,7 @@ export function setup(config, socket) {
         newTank.id = id;
         newTank.x = player.x;
         newTank.y = player.y;
+        newTank.bulletColor = player.bulletColor;
         playerTanks.push(newTank);
         tanksById[id] = newTank;
         stage.addChild(newTank);
@@ -159,7 +160,7 @@ export function setup(config, socket) {
         let tank = tanksById[id];
         // TODO handle bullet colors for each tank
         // TODO handle bullet collision for tank
-        let bullet = shoot(tank, tank.rotation, 32, 7, bullets, () => new Circle(8, 'red'));
+        let bullet = shoot(tank, tank.rotation, 32, 7, bullets, () => new Circle(8, tank.bulletColor));
         stage.addChild(bullet);
     });
 
@@ -232,8 +233,15 @@ export function setup(config, socket) {
             }
             let hitPlayer = hit(tank, bullet);
             if (hitPlayer) {
+                // make rectange smaller
                 playerBox.width = playerBox.width - 0.5;
                 playerBox.height = playerBox.height - 0.5;
+                // replace turret on center
+                tank.children[1].x = tank.children[1].x - 0.25;
+                tank.children[1].y = tank.children[1].y - 0.25;
+                // shorten turret
+                tank.children[1].bx = tank.children[1].bx - 0.25;
+                tank.children[1].lineWidth = tank.children[1].lineWidth - 0.125;
                 stage.removeChild(bullet);
                 return false;
             } else {

@@ -3,34 +3,9 @@ import {keyboard} from './keyboard.js';
 import {shoot} from './utility.js';
 import {hit} from './collision.js';
 import {particleEffect, particles} from "./particle.js";
-import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
 
-let width = 900;
-let height = 900;
 let stage, canvas;
-
 let playerBox;
-
-// ugly code to play music
-let audioBuffer;
-let context = new AudioContext();
-let getSound = new XMLHttpRequest();
-getSound.responseType = 'arraybuffer';
-getSound.open("GET", "music.mp3", true);
-getSound.onload = function() {
-    context.decodeAudioData(getSound.response).then(buffer => {
-        audioBuffer = buffer; // assign the buffer to a variable that can then be 'played'
-        playSound();
-    })
-};
-getSound.send();
-
-function playSound() {
-    let playSound = context.createBufferSource();
-    playSound.buffer = audioBuffer;
-    playSound.connect(context.destination);
-    playSound.start(0)
-}
 
 function makeGunTurret({x, y, rotationSpeed, firingRate}) {
     let box = new Rectangle(32, 32 ,'gray', 'black');
@@ -54,7 +29,9 @@ function makeGunTurret({x, y, rotationSpeed, firingRate}) {
 // there is to way to implement rotation, either in the game engine, or we just update all the childs during the update
 // implementing in the viewport
 
-function setup() {
+export function setup(config, socket) {
+    let width = config.width
+    let height = config.height;
     let frames = 0;
     canvas = makeCanvas(width, height);
     stage = new DisplayObject();
@@ -91,6 +68,7 @@ function setup() {
 
     space.press = () => {
        let bullet = shoot(tank, tank.rotation, 32, 7, bullets, () => new Circle(8, 'red'));
+       socket.emit('fireBullet', { id: tank.id });
        stage.addChild(bullet);
     };
 
@@ -125,11 +103,9 @@ function setup() {
         tank.moveForward = false
     }
 
-    const socket = io("http://localhost:3000");
-    socket.on('connect', () => {
-        console.log('socket connected', socket.id);
-        socket.emit('register', { id: socket.id });
-    });
+    /// start
+    socket.emit('register', { id: socket.id });
+
     socket.on('registered', ({id}, callback) => {
         tank.id = id;
         console.log('registered on server', tank);
@@ -344,6 +320,7 @@ function outsideBounds(sprite, bounds, extra = undefined) {
     }
     return collision;
 }
-setup();
 
 // we can update the local bounds of the stage in the getter according to the current viewport !!
+
+

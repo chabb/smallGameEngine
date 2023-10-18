@@ -178,6 +178,15 @@ function setup() {
         tanksById[id].moveForward = true;
     });
 
+
+    socket.on('fireBullet', ({id}) => {
+        let tank = tanksById[id];
+        // TODO handle bullet colors for each tank
+        // TODO handle bullet collision for tank
+        let bullet = shoot(tank, tank.rotation, 32, 7, bullets, () => new Circle(8, 'red'));
+        stage.addChild(bullet);
+    });
+
     function createTank(currentPlayer = true) {
         const box = new Rectangle(32, 32 ,'gray');
         const turret = new Line('red', 4, 0, 0, 32, 0);

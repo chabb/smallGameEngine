@@ -108,7 +108,7 @@ export function setup(config, socket) {
     socket.emit('register', { id: socket.id });
 
     socket.on('getState', ({id}, callback) => {
-        console.log('GETTING STATE')
+        console.log('GETTING STATE', playerTanks, tank)
         let tanks = [...playerTanks ?? [], tank ?? []].map(tank => serializeTank(tank));
         callback(tanks);
     });
@@ -128,14 +128,14 @@ export function setup(config, socket) {
         tank.y = state.playerTank.y;
         tank.color = state.playerTank.playerColor;
         tank.children[0].strokeStyle = tank.color
-        tank.children[1].fillStyle = tank.color;
+        tank.children[0].fillStyle = tank.color;
         tank.id = state.playerTank.id;
         // add player
         stage.addChild(tank);
         // add already existing players
         state.playerTanks.forEach(tank => {
             console.log('[INITIAL STATE] Player tank on the field');
-            let newTank = hydrateTank(tank);
+            let newTank = hydrateTank(tank, tank.color, tank.color);
             stage.addChild(newTank);
             playerTanks.push(newTank);
         });
@@ -146,7 +146,7 @@ export function setup(config, socket) {
 
     socket.on('player', ({id, index, player}, callback) => {
         console.log('new player to display', player);
-        let newTank = createTank();
+        let newTank = createTank(false, player.playerColor);
         newTank.id = id;
         newTank.x = player.x;
         newTank.y = player.y;
@@ -185,8 +185,8 @@ export function setup(config, socket) {
         stage.addChild(bullet);
     });
 
-    function createTank(currentPlayer = true) {
-        const box = new Rectangle(32, 32 ,'gray');
+    function createTank(currentPlayer = true, color) {
+        const box = new Rectangle(32, 32 ,color, color);
         const turret = new Line('red', 4, 0, 0, 32, 0);
         turret.x = 16;
         turret.y = 16;
@@ -199,6 +199,7 @@ export function setup(config, socket) {
         tank.speed = 0;
         tank.debug = 'tank';
         tank.rotationSpeed = 0;
+        tank.color = color;
         tank.moveForward = false;
         if (currentPlayer) {
             playerBox = box;
@@ -206,11 +207,12 @@ export function setup(config, socket) {
         return tank
     }
 
-    function hydrateTank(tank) {
-        const box = new Rectangle(32, 32 ,'gray');
+    function hydrateTank(tank, color) {
+        const box = new Rectangle(32, 32, color, color);
         const turret = new Line('red', 4, 0, 0, 32, 0);
         turret.x = 16;
         turret.y = 16;
+        tank.color = color;
         const newTank = new Group(box, turret);
         Object.entries(tank).forEach(([k,v]) => newTank[k] = v);
         tanksById[newTank.id] = newTank;
@@ -218,9 +220,9 @@ export function setup(config, socket) {
         return newTank;
     }
 
-    function serializeTank({alpha, ax, ay, friction, speed, rotationSpeed, moveForward, vx, vy, rotation,x, y, id}) {
+    function serializeTank({alpha, ax, ay, friction, speed, rotationSpeed, moveForward, vx, vy, color, rotation,x, y, id}) {
         return {
-            alpha,ax,ay,friction,speed,rotationSpeed,moveForward,vx,vy,rotation,x,y, id
+            alpha,ax,ay,color, friction,speed,rotationSpeed,moveForward,vx,vy,rotation,x,y, id
         }
     }
 

@@ -6,6 +6,7 @@ import {particleEffect, particles} from "./particle.js";
 
 let stage, canvas;
 let playerBox;
+let tanksById = {};
 
 function makeGunTurret({x, y, rotationSpeed, firingRate}) {
     let box = new Rectangle(32, 32 ,'gray', 'black');
@@ -49,7 +50,7 @@ export function setup(config, socket) {
 
     const tank = createTank();
     let playerTanks = [];
-    let tanksById = {};
+
     let bullets = [];
     let foeBullets = [];
 
@@ -106,6 +107,12 @@ export function setup(config, socket) {
     /// start
     socket.emit('register', { id: socket.id });
 
+    socket.on('getState', ({id}, callback) => {
+        console.log('GETTING STATE')
+        let tanks = [...playerTanks ?? [], tank ?? []].map(tank => serializeTank(tank));
+        callback(tanks);
+    });
+
     socket.on('registered', ({id}, callback) => {
         tank.id = id;
         console.log('registered on server', tank);
@@ -113,18 +120,32 @@ export function setup(config, socket) {
     })
 
     socket.on('state', (state, callback) => {
-        console.log('initial state', state)
+        // this is ONLY called when the game start
+        console.log('[INITIAL STATE], received from server', state)
         state.turrets.forEach(turret => gunTurrets.push(makeGunTurret(turret)));
+        // update player position and color
         tank.x = state.playerTank.x;
         tank.y = state.playerTank.y;
+        tank.color = state.playerTank.playerColor;
+        tank.children[0].strokeStyle = tank.color
+        tank.children[1].fillStyle = tank.color;
+        tank.id = state.playerTank.id;
+        // add player
         stage.addChild(tank);
+        // add already existing players
+        state.playerTanks.forEach(tank => {
+            console.log('[INITIAL STATE] Player tank on the field');
+            let newTank = hydrateTank(tank);
+            stage.addChild(newTank);
+            playerTanks.push(newTank);
+        });
         callback(tank.x, tank.y);
         // start game
         gameLoop();
     })
 
     socket.on('player', ({id, index, player}, callback) => {
-        console.log('new player to display');
+        console.log('new player to display', player);
         let newTank = createTank();
         newTank.id = id;
         newTank.x = player.x;
@@ -133,7 +154,7 @@ export function setup(config, socket) {
         playerTanks.push(newTank);
         tanksById[id] = newTank;
         stage.addChild(newTank);
-        console.log(playerTanks);
+        console.log(playerTanks, tanksById);
     });
 
     // player actions are not acknowledged
@@ -183,6 +204,24 @@ export function setup(config, socket) {
             playerBox = box;
         }
         return tank
+    }
+
+    function hydrateTank(tank) {
+        const box = new Rectangle(32, 32 ,'gray');
+        const turret = new Line('red', 4, 0, 0, 32, 0);
+        turret.x = 16;
+        turret.y = 16;
+        const newTank = new Group(box, turret);
+        Object.entries(tank).forEach(([k,v]) => newTank[k] = v);
+        tanksById[newTank.id] = newTank;
+        console.log('Hydrated tank', newTank, tanksById);
+        return newTank;
+    }
+
+    function serializeTank({alpha, ax, ay, friction, speed, rotationSpeed, moveForward, vx, vy, rotation,x, y, id}) {
+        return {
+            alpha,ax,ay,friction,speed,rotationSpeed,moveForward,vx,vy,rotation,x,y, id
+        }
     }
 
     function updateTank(tankToUpdate) {
@@ -236,6 +275,8 @@ export function setup(config, socket) {
                 // make rectange smaller
                 playerBox.width = playerBox.width - 0.5;
                 playerBox.height = playerBox.height - 0.5;
+                // update center
+
                 // replace turret on center
                 tank.children[1].x = tank.children[1].x - 0.25;
                 tank.children[1].y = tank.children[1].y - 0.25;
